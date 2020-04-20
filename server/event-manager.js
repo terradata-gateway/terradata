@@ -95,7 +95,6 @@ class EventManager {
         } 
         return data;
     }
-  
 }
 
 module.exports = EventManager;

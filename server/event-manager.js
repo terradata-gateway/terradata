@@ -2,6 +2,7 @@ const constants = require('../lib/constants');
 const MessageBroker = require('./message-broker');
 const mb = new MessageBroker(constants.MQ_HOST);
 const { v4: uuidv4 } = require('uuid');
+const Joi = require('@hapi/joi');
 
 class EventManager {
     constructor() {
@@ -10,37 +11,59 @@ class EventManager {
     }
 
     createEvent(data) {
-        try {
-            if (data.toString().length != 0) {
-                mb.push(this.dataToJSON(data),  this.eventsQueue);
-            }
-        } catch(err) {
-            console.log(`Event Error: ${err}`);                
-            console.log(`Event Data: ${data.toString()}`);
-        }
+        this.pushToQueue(data, this.eventsQueue);
     }
 
     broadcast(data) {
+        this.pushToQueue(data, this.broadcastQueue);
+    }
+
+    pushToQueue(data, queue) {
         try {
-            if (data.toString().length != 0) {
-                mb.push(this.dataToJSON(data), this.broadcastQueue);
+            if(this.validateEventObject(data)) {
+                mb.push(this.dataToJSON(data),  queue);
+            } else {
+                throw err;
             }
         } catch(err) {
-            console.log(`Event Error: ${err}`);                
-            console.log(`Event Data: ${data.toString()}`);
+            console.log(`Push event to queue error: ${err}`);                
+            console.log(`Push event to queue data: ${JSON.stringify(data)}`);
         }
     }
 
-    
+    validateEventObject(event) {
+        try {
+            let isValid = true;
+            const schema = Joi.object({
+                header: Joi.object({
+                    eventID : Joi.string().required(),
+                    correlationID : Joi.string().required(),
+                    status : Joi.string().required(),
+                    type: Joi.string(),
+                    timestamp: Joi.number().required(),
+                    redelivered: Joi.boolean().required()
+                }),
+                reqHeaders: Joi.object(),
+                data : Joi.object().required()
+            });
+            const { error, value } = schema.validate(event);
 
-    validateEventObject(data) {
+            console.log(`Validate event object: ${JSON.stringify(error)}`);
 
-        // TO DO Validate Event Example: { status: "ok"|"error", event: EVENT_NAME, data: <any arbitrary data> }
+            if (error !== undefined) {
+                isValid = false;             
+            }
+
+            return isValid;
+
+        }
+        catch (err) {
+            console.log(`Failed to validate event object: ${err}`);
+        }
     }
 
     buildEventObject(req, params) {
         let event = {};
-        console.log(`Inside build event Object ${JSON.stringify(req.headers)}`);
         try {
             event.header = {};
 
@@ -68,7 +91,7 @@ class EventManager {
                 event.header.status = (params.status !== undefined) ? status : event.header.status;
 
                 // Include Initial Request Header
-                event.reqHeaders = (params.reqHeaders) ? req.headers : '';
+                event.reqHeaders = (params.reqHeaders) ? req.headers : {};
             }
 
             // Redelivered
@@ -80,7 +103,6 @@ class EventManager {
             // Event Data
             event.data = req.body; 
 
-            console.log(`Build event message: ${event}`);
         } catch (err) {
             console.log(`Failed to build event message: ${err}`);
         }

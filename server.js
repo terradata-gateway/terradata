@@ -2,11 +2,8 @@
 const express = require('express');
 const logger = require('morgan');
 const dotenv = require('dotenv');
+const constants = require('./lib/constants');
 const app = express();
-
-// Listener Ports
-const HTTP_PORT = process.env.HTTP_PORT || 3001;
-const P2P_PORT = process.env.P2P_PORT || 5001;
 
 // Load env vars
 dotenv.config({ path: './config/config.env'});
@@ -37,14 +34,14 @@ app.use('/api/v1', routes);
     Terradata P2P Event Manager
 =====================================================================================*/
 
-p2p.listen(P2P_PORT);
+p2p.listen(constants.P2P_PORT);
 
 /* ===================================================================================
    Express API
 =====================================================================================*/
 
-const server = app.listen(HTTP_PORT, () => {
-    console.log(`App listening on port ${HTTP_PORT}!`);
+const server = app.listen(constants.HTTP_PORT, () => {
+    console.log(`App listening on port ${constants.HTTP_PORT}!`);
 });
 
 // Handle unhandled rejections

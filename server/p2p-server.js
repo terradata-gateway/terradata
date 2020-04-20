@@ -43,7 +43,6 @@ class P2pServer {
 
         console.log(`Listening for peer-to-peer connections on: ${port}`);
 
-        // this.replicate();
     }
 
     connectSocket(socket) {

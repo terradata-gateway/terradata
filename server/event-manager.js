@@ -1,12 +1,11 @@
-const MQ_HOST = process.env.MQ_HOST || 'amqp://localhost';
-
+const constants = require('../lib/constants');
 const MessageBroker = require('./message-broker');
-const mb = new MessageBroker(MQ_HOST);
+const mb = new MessageBroker(constants.MQ_HOST);
 
 class EventManager {
     constructor() {
-        this.eventsQueue = (process.env.INCOMING_QUEUE || "TD_EVENTS") + '_' + (process.env.SERVER_NAME || 'SERVER_1');
-        this.broadcastQueue = (process.env.INCOMING_QUEUE || "TD_BROADCAST") + '_' + (process.env.SERVER_NAME || 'SERVER_1');
+        this.eventsQueue = constants.EVENTS_QUEUE;
+        this.broadcastQueue = constants.BROADCAST_QUEUE;
     }
 
     createEvent(data) {

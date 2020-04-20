@@ -115,12 +115,6 @@ class P2pServer {
         return peers;
     }
 
-    requestToEvent(req) {
-        let event = {};
-        event.headers = req.headers;
-        event.body = req.body;
-        return event;
-    }
 }
 
 module.exports = P2pServer;

@@ -7,12 +7,11 @@ class MessageBroker {
     }
 
     pull (queue) {
-        // TO DO  - Rewrite to async/await style
-        amqp.connect(this.host, function(error0, connection) {
+        amqp.connect(this.host, (error0, connection) => {
             if (error0) {
                 throw error0;
             }
-            connection.createChannel(function(error1, channel) {
+            connection.createChannel((error1, channel) => {
                 if (error1) {
                     throw error1;
                 }
@@ -23,18 +22,17 @@ class MessageBroker {
 
                 console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", queue);
 
-                channel.consume(queue, function(message) {
+                channel.consume(queue, (message) => {
                     console.log(" [x] Received %s", message.content.toString());
                 }, {
                     noAck: true
                 });
+            });
         });
-    });
 
     }
 
     push (message, queue) {
-        // TO DO  - Rewrite to async/await style
         amqp.connect(this.host, (error0, connection) => {
             if (error0) {
                 throw error0;

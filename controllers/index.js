@@ -7,8 +7,14 @@ const events = new EventManager();
 
 exports.postEventMessages = async (req, res, next) => {
     try {
-        events.createEvent(req.body);
-        events.broadcast(req.body);
+        //events.createEvent(req.body);
+        const params = {
+            type : 'standard',
+            reqHeaders: false // include original request headers
+        };
+
+        events.createEvent(events.buildEventObject(req, params));
+        events.broadcast(events.buildEventObject(req, params));
         res.status(200).json({success: true});
     } catch (err) {
         res.status(400).json({

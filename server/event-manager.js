@@ -33,7 +33,7 @@ class EventManager {
 
     validateEventObject(event) {
         try {
-            let isValid = true;
+            
             const schema = Joi.object({
                 header: Joi.object({
                     eventID : Joi.string().required(),
@@ -46,19 +46,20 @@ class EventManager {
                 reqHeaders: Joi.object(),
                 data : Joi.object().required()
             });
-            const { error, value } = schema.validate(event);
 
-            console.log(`Validate event object: ${JSON.stringify(error)}`);
+            const { error, value } = (typeof event === 'string' || event instanceof String) ? schema.validate(JSON.parse(event)) : schema.validate(event);
 
             if (error !== undefined) {
-                isValid = false;             
+                console.log(`Validate event object error: ${JSON.stringify(error)}`);
+                return false;             
             }
 
-            return isValid;
+            return true;
 
         }
         catch (err) {
             console.log(`Failed to validate event object: ${err}`);
+            return false;   
         }
     }
 
@@ -66,41 +67,20 @@ class EventManager {
         let event = {};
         try {
             event.header = {};
-
-            // Event ID
             event.header.eventID = uuidv4();
-
-            // Event Correlation ID
             event.header.correlationID = uuidv4();
-
-            // Status
             event.header.status = 'created';
 
             // Check if event has additional params
             if (params !== undefined) {
-                // Overwrite Event ID
                 event.header.eventID = (params.eventID !== undefined) ? params.eventID : event.header.eventID;
-
-                // Overwrite Event Correlation ID
                 event.header.correlationID = (params.correlationID !== undefined) ? params.correlationID : event.header.correlationID;
-
-                // Event Type
                 event.header.type = (params.type !== undefined) ? params.type : '';
-
-                // Status
                 event.header.status = (params.status !== undefined) ? status : event.header.status;
-
-                // Include Initial Request Header
                 event.reqHeaders = (params.reqHeaders) ? req.headers : {};
             }
-
-            // Redelivered
             event.header.redelivered = false;
-
-            // Timestamp 
             event.header.timestamp = (params.timestamp !== undefined) ? params.timestamp : Date.now();
-            
-            // Event Data
             event.data = req.body; 
 
         } catch (err) {

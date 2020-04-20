@@ -35,8 +35,6 @@ class P2pServer {
 
           }); */
 
-        
-
         // Connect to Peers
         this.connectToPeers();
 

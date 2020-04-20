@@ -22,10 +22,6 @@ const EventManager = require('./server/event-manager');
 const events = new EventManager();
 const p2p = new P2pServer(events);
 
-// Helper
-// const Helper = require('./helper');
-// const hp = new Helper();
-
 /* ===================================================================================
     Event Manager API 
 =====================================================================================*/
@@ -36,62 +32,6 @@ const routes = require('./routes');
 // Mount routers
 app.use('/api/v1', routes);
 
-/*
-// @desc    Post Event Messages
-// @route   POST api/v1/events
-// @access  Public
-
-app.post('/api/v1/events', (req, res) => {
-    try {
-        events.createEvent(hp.reqToEvent(req));
-        p2p.syncData(hp.reqToEvent(req));
-        res.status(200).json({success: true});
-    } catch (err) {
-        res.status(400).json({
-            success: false, 
-            error: err
-        }); 
-    }
-});
-
-// @desc    Load Test Event Manager
-// @route   POST api/v1/test
-// @access  Public
-
-app.post('/api/v1/test', (req, res) => {
-    try {
-        for (let i=0; i<200; i++) {
-            events.createEvent(hp.reqToEvent(req));
-            p2p.syncData(hp.reqToEvent(req));
-        }
-        res.status(200).json({success: true});
-    } catch (err) {
-        res.status(400).json({
-            success: false, 
-            error: err
-        }); 
-    }
-});
-
-// @desc    Get Network Peers
-// @route   GET api/v1/peers
-// @access  Public
-
-// DOES NOT RETURN ADDRESSES PROPERLY - TO BE FIXED
-app.get('/api/v1/peers', (req, res) => {
-    try {
-        res.status(200).json({
-            success: true,
-            peers: p2p.getConnectedPeers()
-        });
-    } catch (err) {
-        res.status(400).json({
-            success: false, 
-            error: err
-        }); 
-    }
-}); 
-*/
 
 /* ===================================================================================
     P2P Event Manager

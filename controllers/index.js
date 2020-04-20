@@ -1,11 +1,15 @@
-// @desc    Post Event Messages
+const EventManager = require('../server/event-manager');
+const events = new EventManager();
+
+// @desc    Post Event Messages to Event Queue
 // @route   POST api/v1/events
 // @access  Public
 
 exports.postEventMessages = async (req, res, next) => {
     try {
         events.createEvent(req.body);
-        p2p.syncData(req.body);
+        events.broadcast(req.body);
+        //p2p.syncData(req.body);
         res.status(200).json({success: true});
     } catch (err) {
         res.status(400).json({
@@ -23,7 +27,7 @@ exports.postTestEventMessages = async (req, res, next) => {
     try {
         for (let i=0; i<200; i++) {
             events.createEvent(req.body);
-            p2p.syncData(req.body);
+            // p2p.syncData(req.body);
         }
         res.status(200).json({success: true});
     } catch (err) {
@@ -43,7 +47,7 @@ exports.getPeers = async (req, res, next) => {
     try {
         res.status(200).json({
             success: true,
-            peers: p2p.getConnectedPeers()
+            // peers: p2p.getConnectedPeers()
         });
     } catch (err) {
         res.status(400).json({

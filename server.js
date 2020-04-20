@@ -23,24 +23,20 @@ const events = new EventManager();
 const p2p = new P2pServer(events);
 
 // Helper
-const Helper = require('./helper');
-const hp = new Helper();
+// const Helper = require('./helper');
+// const hp = new Helper();
 
 /* ===================================================================================
     Event Manager API 
 =====================================================================================*/
 
-/* TO DO - Refactor to routes with P2pServer and EventManager middleware
-   TO DO - Fix loss of sockets connection bug 
 // Route files 
-const api = require('./routes');
-
-console.log(api);
+const routes = require('./routes');
 
 // Mount routers
-app.use('/api/v1', api);
-*/
+app.use('/api/v1', routes);
 
+/*
 // @desc    Post Event Messages
 // @route   POST api/v1/events
 // @access  Public
@@ -95,6 +91,7 @@ app.get('/api/v1/peers', (req, res) => {
         }); 
     }
 }); 
+*/
 
 /* ===================================================================================
     P2P Event Manager

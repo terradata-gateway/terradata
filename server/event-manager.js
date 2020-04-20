@@ -1,19 +1,30 @@
 const SERVER_NAME = process.env.SERVER_NAME || 'SERVER_1';
 const MQ_HOST = process.env.MQ_HOST || 'amqp://localhost';
-const INCOMING_QUEUE = (process.env.INCOMING_QUEUE || "TD_EVENTS") + '_' + SERVER_NAME;
 
 const MessageBroker = require('./message-broker');
 const mb = new MessageBroker(MQ_HOST);
 
 class EventManager {
     constructor() {
-        
+        this.EVENTS_QUEUE = (process.env.INCOMING_QUEUE || "TD_EVENTS") + '_' + SERVER_NAME;
+        this.BROADCAST_QUEUE = (process.env.INCOMING_QUEUE || "TD_BROADCAST") + '_' + SERVER_NAME;
     }
 
     createEvent(data) {
         try {
             if (data.toString().length != 0) {
-                mb.push(this.dataToJSON(data), INCOMING_QUEUE);
+                mb.push(this.dataToJSON(data), this.EVENTS_QUEUE);
+            }
+        } catch(err) {
+            console.log(`Event Error: ${err}`);                
+            console.log(`Event Data: ${data.toString()}`);
+        }
+    }
+
+    broadcast(data) {
+        try {
+            if (data.toString().length != 0) {
+                mb.push(this.dataToJSON(data), this.BROADCAST_QUEUE);
             }
         } catch(err) {
             console.log(`Event Error: ${err}`);                

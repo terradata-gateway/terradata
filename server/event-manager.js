@@ -38,6 +38,7 @@ class EventManager {
                 header: Joi.object({
                     eventID : Joi.string().required(),
                     correlationID : Joi.string().required(),
+                    token: Joi.string(),
                     status : Joi.string().required(),
                     type: Joi.string(),
                     timestamp: Joi.number().required(),
@@ -47,10 +48,20 @@ class EventManager {
                 data : Joi.object().required()
             });
 
-            const { error, value } = (typeof event === 'string' || event instanceof String) ? schema.validate(JSON.parse(event)) : schema.validate(event);
+            if (typeof event === 'string' || event instanceof String) {
+                console.log('Parsing event...');
+                console.log(`Event: ${event}`);
+                const eventObj = JSON.parse(JSON.parse(event));
+                console.log(`Event obj: ${eventObj}`);
+                console.log(`Type of event obj: ${typeof eventObj}`);
+                console.log(schema.validate(eventObj));
+            }
+
+            const eventObj = (typeof event === 'string' || event instanceof String) ? JSON.parse(event) : event;
+            const { error, value } = schema.validate(eventObj);
 
             if (error !== undefined) {
-                console.log(`Validate event object error: ${JSON.stringify(error)}`);
+                console.log(`Validate event object error: ${error}`);
                 return false;             
             }
 
@@ -69,6 +80,7 @@ class EventManager {
             event.header = {};
             event.header.eventID = uuidv4();
             event.header.correlationID = uuidv4();
+            event.header.token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
             event.header.status = 'created';
 
             // Check if event has additional params

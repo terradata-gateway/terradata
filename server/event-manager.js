@@ -1,8 +1,8 @@
 const constants = require('../lib/constants');
+const Log = require('../lib/logger');
 const Event = require('./event');
 const MessageBroker = require('./message-broker');
 const mb = new MessageBroker(constants.MQ_HOST);
-
 
 class EventManager {
     constructor() {
@@ -26,8 +26,8 @@ class EventManager {
                 throw err;
             }
         } catch(err) {
-            console.log(`Push event to queue error: ${err}`);                
-            console.log(`Push event to queue data: ${JSON.stringify(data)}`);
+            Log.error(`Push event to queue error: ${err}`);                
+            Log.error(`Push event to queue data: ${JSON.stringify(data)}`);
         }
     }
 

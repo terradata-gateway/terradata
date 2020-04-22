@@ -1,5 +1,6 @@
 // Load Modules
 const express = require('express');
+const Log = require('./lib/logger');
 const logger = require('morgan');
 const dotenv = require('dotenv');
 const constants = require('./lib/constants');
@@ -12,12 +13,9 @@ app.use(logger('dev'));
 // Body Parser
 app.use(express.json());
 
-// P2P Server & Event Manager
+// P2P Server
 const P2pServer = require('./server/p2p-server');
-const EventManager = require('./server/event-manager');
-
-const events = new EventManager();
-const p2p = new P2pServer(events);
+const p2p = new P2pServer();
 
 /* ===================================================================================
     Terradata Gateway API 
@@ -41,12 +39,12 @@ p2p.listen(constants.P2P_PORT);
 =====================================================================================*/
 
 const server = app.listen(constants.HTTP_PORT, () => {
-    console.log(`App listening on port ${constants.HTTP_PORT}!`);
+    Log.info(`App listening on port ${constants.HTTP_PORT}!`);
 });
 
 // Handle unhandled rejections
 process.on('unhandledRejection', (err, promise) => {
-    console.log(`Error: ${err.message}`);
+    Log.error(`Error: ${err.message}`);
     // Close server and exit process
     server.close(() => process.exit(1));
 });

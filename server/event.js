@@ -1,11 +1,11 @@
 const { v4: uuidv4 } = require('uuid');
 const Joi = require('@hapi/joi');
+const Log = require('../lib/logger');
 
 class Event {
     static validateEventObject(event) {
         
         try {
-            
             const schema = Joi.object({
                 header: Joi.object({
                     eventID : Joi.string().required(),
@@ -21,12 +21,12 @@ class Event {
             });
 
             if (typeof event === 'string' || event instanceof String) {
-                console.log('Parsing event...');
-                console.log(`Event: ${event}`);
+                Log.info('Parsing event...');
+                Log.info(`Event: ${event}`);
                 const eventObj = JSON.parse(JSON.parse(event));
-                console.log(`Event obj: ${eventObj}`);
-                console.log(`Type of event obj: ${typeof eventObj}`);
-                console.log(schema.validate(eventObj));
+                Log.info(`Event obj: ${eventObj}`);
+                Log.info(`Type of event obj: ${typeof eventObj}`);
+                Log.info(schema.validate(eventObj));
             }
 
             const eventObj = (typeof event === 'string' || event instanceof String) ? JSON.parse(event) : event;
@@ -44,7 +44,7 @@ class Event {
 
         }
         catch (err) {
-            console.log(`Failed to validate event object: ${err}`);
+            Log.error(`Failed to validate event object: ${err}`);
             return false;   
         }
     }
@@ -71,7 +71,7 @@ class Event {
             event.data = req.body; 
 
         } catch (err) {
-            console.log(`Failed to build event message: ${err}`);
+            Log.error(`Failed to build event message: ${err}`);
         }
         return event;
     }

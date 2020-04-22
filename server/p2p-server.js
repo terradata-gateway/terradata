@@ -1,12 +1,13 @@
 const Websocket = require('ws');
+const EventManager = require('./event-manager');
+const Log = require('../lib/logger');
+const em = new EventManager();
 const peers = process.env.PEERS ? process.env.PEERS.split(',') : [];
 const constants = require('../lib/constants');
-
-var amqp = require('amqplib/callback_api');
+const amqp = require('amqplib/callback_api');
 
 class P2pServer {
-    constructor (eventManager) {
-        this.eventManager = eventManager;
+    constructor () {
         this.sockets = [];
         this.mqHost = constants.MQ_HOST;
         this.broadcastQueue = constants.BROADCAST_QUEUE;
@@ -23,7 +24,7 @@ class P2pServer {
         });
 
         server.on('error', (err) => {
-            console.log(`P2P server error: ${err}`);
+            Log.error(`P2P server error: ${err}`);
             // Exit process
             process.exit(1);
         });
@@ -40,7 +41,7 @@ class P2pServer {
         // Sync Data
         this.syncData();
 
-        console.log(`Listening for peer-to-peer connections on: ${port}`);
+        Log.info(`Listening for peer-to-peer connections on: ${port}`);
 
     }
 
@@ -59,26 +60,28 @@ class P2pServer {
 
     messageHandler(socket) {
         socket.on('message', message => {
-            const data = message;
-            this.eventManager.createEvent(data);
+            em.storeEvent(message);
         });
     }
 
     sendData(socket, data) {
-        socket.send(JSON.stringify(data));
+        // socket.send(JSON.stringify(data));
+        socket.send(data);
         socket.on('error', (err) => {
             // TO DO - Better error handling 
-            console.log(`Failed to send data to peer: ${err}`);
+            Log.error(`Failed to send data to peer: ${err}`);
         });    
     }
     
     syncData() {
         amqp.connect(this.mqHost, (error0, connection) => {
             if (error0) {
+                Log.error(`Failed to connect to message queue: ${error0}`);
                 throw error0;
             }
             connection.createChannel((error1, channel) => {
                 if (error1) {
+                    Log.error(`Failed to create channel: ${error0}`);
                     throw error1;
                 }
 
@@ -86,10 +89,10 @@ class P2pServer {
                     durable: false
                 });
 
-                console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", this.broadcastQueue);
+                Log.info(" [*] Waiting for messages in %s. To exit press CTRL+C", this.broadcastQueue);
 
                 channel.consume(this.broadcastQueue, (message) => {
-                    console.log(" [x] Received %s", message.content.toString());
+                    Log.info(" [x] Received %s", message.content.toString());
                     this.sockets.forEach(socket => {
                         // Check if socket is open
                         if (socket.readyState === Websocket.OPEN) {

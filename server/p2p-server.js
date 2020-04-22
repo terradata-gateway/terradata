@@ -81,7 +81,7 @@ class P2pServer {
             }
             connection.createChannel((error1, channel) => {
                 if (error1) {
-                    Log.error(`Failed to create channel: ${error0}`);
+                    Log.error(`Failed to create channel: ${error1}`);
                     throw error1;
                 }
 
@@ -89,10 +89,10 @@ class P2pServer {
                     durable: false
                 });
 
-                Log.info(" [*] Waiting for messages in %s. To exit press CTRL+C", this.broadcastQueue);
+                Log.info(`[*] Waiting for messages in ${this.broadcastQueue}. To exit press CTRL+C`);
 
                 channel.consume(this.broadcastQueue, (message) => {
-                    Log.info(" [x] Received %s", message.content.toString());
+                    Log.info(`[x] Received ${message.content.toString()}`);
                     this.sockets.forEach(socket => {
                         // Check if socket is open
                         if (socket.readyState === Websocket.OPEN) {

@@ -3,4 +3,4 @@ config/config.env
 tests/
 commands/
 logs/error.log
-logs/combined.log
+logs/server.log

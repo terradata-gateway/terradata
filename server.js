@@ -39,12 +39,12 @@ p2p.listen(constants.P2P_PORT);
 =====================================================================================*/
 
 const server = app.listen(constants.HTTP_PORT, () => {
-    Log.info(`App listening on port ${constants.HTTP_PORT}!`);
+    Log.info(`app.server.listen.port ${constants.HTTP_PORT}`);
 });
 
 // Handle unhandled rejections
 process.on('unhandledRejection', (err, promise) => {
-    Log.error(`Error: ${err.message}`);
+    Log.error(`process.unhandled.rejection ${err.message}`);
     // Close server and exit process
     server.close(() => process.exit(1));
 });

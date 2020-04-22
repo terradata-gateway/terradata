@@ -8,14 +8,15 @@ class MessageBroker {
     }
 
     pull (queue) {
+        Log.info(`message.broker.pull ${queue}`);
         amqp.connect(this.host, (error0, connection) => {
             if (error0) {
-                Log.error(`Failed to connect to message queue: ${error0}`);
+                Log.error(`message.broker.pull.connect.error ${error0}`);
                 throw error0;
             }
             connection.createChannel((error1, channel) => {
                 if (error1) {
-                    Log.error(`Failed to create channel: ${error1}`);
+                    Log.error(`message.broker.pull.connect.channel.error ${error1}`);
                     throw error1;
                 }
 
@@ -23,10 +24,11 @@ class MessageBroker {
                     durable: false
                 });
 
-                Log.info(`[*] Waiting for messages in ${queue}. To exit press CTRL+C`);
+                Log.info(`message.broker.pull.connect.channel.listen.queue ${queue}`);
 
                 channel.consume(queue, (message) => {
-                    Log.info(`[x] Received %s ${message.content.toString()}`);
+                    Log.info(`message.broker.pull.connect.channel.consume.queue ${queue}`);
+                    Log.info(`message.broker.pull.connect.channel.consume.queue.message ${message.content.toString()}`);
                 }, {
                     noAck: true
                 });
@@ -36,22 +38,25 @@ class MessageBroker {
     }
 
     push (message, queue) {
+        Log.info(`message.broker.push ${queue}`);
         amqp.connect(this.host, (error0, connection) => {
             if (error0) {
-                Log.error(`Failed to connect to message queue: ${error0}`);
+                Log.error(`message.broker.push.connect.error ${error0}`);
                 throw error0;
             }
             connection.createChannel((error1, channel) => {
                 if (error1) {
-                    Log.error(`Failed to create channel: ${error1}`);
+                    Log.error(`message.broker.push.connect.channel.error ${error1}`);
                     throw error1;
                 }
 
                 channel.assertQueue(queue, {
                     durable: false
                 });
+                
                 channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)));
-                Log.info(`[x] Sent ${message}`);
+                Log.info(`message.broker.push.connect.channel.send.queue ${queue}`);
+                Log.info(`message.broker.push.connect.channel.send.queue.message ${message}`);
             });
 
             setTimeout(async () => {

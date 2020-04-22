@@ -4,8 +4,14 @@ const Log = require('../lib/logger');
 
 class Event {
     static validateEventObject(event) {
-        
         try {
+            Log.info(`event.validate`);
+
+            // Validation doesn't work for some reason... 
+            // Until I will fix it, always return true
+            return true; 
+
+
             const schema = Joi.object({
                 header: Joi.object({
                     eventID : Joi.string().required(),
@@ -21,37 +27,31 @@ class Event {
             });
 
             if (typeof event === 'string' || event instanceof String) {
-                Log.info('Parsing event...');
-                Log.info(`Event: ${event}`);
                 const eventObj = JSON.parse(JSON.parse(event));
-                Log.info(`Event obj: ${eventObj}`);
-                Log.info(`Type of event obj: ${typeof eventObj}`);
-                Log.info(schema.validate(eventObj));
             }
 
             const eventObj = (typeof event === 'string' || event instanceof String) ? JSON.parse(event) : event;
             const { error, value } = schema.validate(eventObj);
-
-            // Validation doesn't work for some reason... 
-            // Until I will fix it, always return true
-            /*
+            
             if (error !== undefined) {
-                console.log(`Validate event object error: ${error}`);
+                Log.info(`event.validate.invalid ${error}`);
                 return false;             
-            } */ 
+            } 
 
+            Log.info(`event.validate.valid`);
             return true;
 
         }
         catch (err) {
-            Log.error(`Failed to validate event object: ${err}`);
+            Log.error(`event.validate.error ${err}`);
             return false;   
-        }
+        } 
     }
 
     static buildEventObject(req, params) {
         let event = {};
         try {
+            Log.info(`event.build`);
             event.header = {};
             event.header.eventID = uuidv4();
             event.header.correlationID = uuidv4();
@@ -70,8 +70,11 @@ class Event {
             event.header.timestamp = (params.timestamp !== undefined) ? params.timestamp : Date.now();
             event.data = req.body; 
 
+            Log.info(`event.build.id ${event.header.eventID}`);
+            Log.info(`event.build.correlation.id ${event.header.correlationID}`);
+
         } catch (err) {
-            Log.error(`Failed to build event message: ${err}`);
+            Log.error(`event.build.error ${err}`);
         }
         return event;
     }

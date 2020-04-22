@@ -1,5 +1,6 @@
 const EventManager = require('../server/event-manager');
 const Event = require('../server/event');
+const Log = require('../lib/logger');
 const em = new EventManager();
 
 // @desc    Post Event Messages to Event Queue
@@ -8,6 +9,9 @@ const em = new EventManager();
 
 exports.postEventMessages = async (req, res, next) => {
     try {
+
+        console.log(`${req.toString()}`);
+
         const params = {
             type : 'standard',
             reqHeaders: false // include original request headers

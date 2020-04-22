@@ -11,10 +11,12 @@ class EventManager {
     }
 
     storeEvent(data) {
+        Log.info(`event.manager.store ${this.eventsQueue}`);
         this.pushToQueue(data, this.eventsQueue);
     }
 
     broadcastEvent(data) {
+        Log.info(`event.manager.broadcast ${this.broadcastQueue}`);
         this.pushToQueue(data, this.broadcastQueue);
     }
 
@@ -26,8 +28,8 @@ class EventManager {
                 throw err;
             }
         } catch(err) {
-            Log.error(`Push event to queue error: ${err}`);                
-            Log.error(`Push event to queue data: ${JSON.stringify(data)}`);
+            Log.error(`event.manager.push.queue.error ${queue} ${err}`);   
+            Log.error(`event.manager.push.queue.error.data ${queue} ${JSON.stringify(data)}`); 
         }
     }
 

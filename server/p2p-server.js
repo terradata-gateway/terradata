@@ -14,17 +14,19 @@ class P2pServer {
     }
 
     listen(port) {
+        Log.info(`p2p.server.listen.port ${port}`);
         const server = new Websocket.Server({ 
             port: port,
             clientTracking: true            
         });
 
         server.on('connection', (socket, req) => {
+            Log.info(`p2p.server.listen.connection`);
             this.connectSocket(socket);
         });
 
         server.on('error', (err) => {
-            Log.error(`P2P server error: ${err}`);
+            Log.info(`p2p.server.listen.error ${err}`);
             // Exit process
             process.exit(1);
         });
@@ -41,47 +43,51 @@ class P2pServer {
         // Sync Data
         this.syncData();
 
-        Log.info(`Listening for peer-to-peer connections on: ${port}`);
+        // Log.info(`Listening for peer-to-peer connections on: ${port}`);
 
     }
 
     connectSocket(socket) {
+        Log.info(`p2p.server.connect.socket ${socket._socket.remoteAddress} ${socket._socket.remotePort}`);
         this.sockets.push(socket);
         this.messageHandler(socket);
     }
 
     connectToPeers() {
+        Log.info(`p2p.server.connect.peers ${peers.length}`);
         peers.forEach(peer => {
             const socket = new Websocket(peer);
-            socket.on('error', (err) => console.log(err));
+            socket.on('error', (err) => Log.error(`p2p.server.connect.peer.error ${err}`));
             socket.on('open', () => this.connectSocket(socket));
         });
     }
 
     messageHandler(socket) {
         socket.on('message', message => {
+            Log.info(`p2p.server.socket.message.handler ${message}`);
             em.storeEvent(message);
         });
     }
 
     sendData(socket, data) {
         // socket.send(JSON.stringify(data));
+        Log.info(`p2p.server.socket.message.send`);
         socket.send(data);
         socket.on('error', (err) => {
             // TO DO - Better error handling 
-            Log.error(`Failed to send data to peer: ${err}`);
+            Log.info(`p2p.server.socket.message.sende.error ${err}`);
         });    
     }
     
     syncData() {
         amqp.connect(this.mqHost, (error0, connection) => {
             if (error0) {
-                Log.error(`Failed to connect to message queue: ${error0}`);
+                Log.info(`p2p.server.sync.connect.error ${error0}`);
                 throw error0;
             }
             connection.createChannel((error1, channel) => {
                 if (error1) {
-                    Log.error(`Failed to create channel: ${error1}`);
+                    Log.info(`p2p.server.sync.connect.channel.error ${error1}`);
                     throw error1;
                 }
 
@@ -89,10 +95,11 @@ class P2pServer {
                     durable: false
                 });
 
-                Log.info(`[*] Waiting for messages in ${this.broadcastQueue}. To exit press CTRL+C`);
+                Log.info(`p2p.server.sync.connect.channel.listen.queue ${this.broadcastQueue}`);
 
                 channel.consume(this.broadcastQueue, (message) => {
-                    Log.info(`[x] Received ${message.content.toString()}`);
+                    Log.info(`p2p.server.sync.connect.channel.consume.queue ${this.broadcastQueue}`);
+                    Log.info(`p2p.server.sync.connect.channel.consume.queue.message ${message.content.toString()}`);
                     this.sockets.forEach(socket => {
                         // Check if socket is open
                         if (socket.readyState === Websocket.OPEN) {

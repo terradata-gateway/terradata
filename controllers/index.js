@@ -1,5 +1,6 @@
 const EventManager = require('../server/event-manager');
-const events = new EventManager();
+const Event = require('../server/event');
+const em = new EventManager();
 
 // @desc    Post Event Messages to Event Queue
 // @route   POST api/v1/events
@@ -7,16 +8,18 @@ const events = new EventManager();
 
 exports.postEventMessages = async (req, res, next) => {
     try {
-        //events.createEvent(req.body);
         const params = {
             type : 'standard',
             reqHeaders: false // include original request headers
         };
 
-        events.createEvent(events.buildEventObject(req, params));
-        events.broadcast(events.buildEventObject(req, params));
+        const eventObject = Event.buildEventObject(req, params);
+
+        em.storeEvent(eventObject);
+        em.broadcastEvent(eventObject);
         res.status(200).json({success: true});
     } catch (err) {
+        console.log(err);
         res.status(400).json({
             success: false, 
             error: err
@@ -30,9 +33,10 @@ exports.postEventMessages = async (req, res, next) => {
 
 exports.postTestEventMessages = async (req, res, next) => {
     try {
+        const eventObject = Event.buildEventObject(req, params);
         for (let i=0; i<200; i++) {
-            events.createEvent(req.body);
-            events.broadcast(req.body);
+            em.storeEvent(eventObject);
+            em.broadcastEvent(eventObject);
         }
         res.status(200).json({success: true});
     } catch (err) {

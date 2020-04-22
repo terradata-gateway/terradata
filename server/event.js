@@ -5,13 +5,6 @@ const Log = require('../lib/logger');
 class Event {
     static validateEventObject(event) {
         try {
-            Log.info(`event.validate`);
-
-            // Validation doesn't work for some reason... 
-            // Until I will fix it, always return true
-            return true; 
-
-
             const schema = Joi.object({
                 header: Joi.object({
                     eventID : Joi.string().required(),
@@ -26,19 +19,17 @@ class Event {
                 data : Joi.object().required()
             });
 
-            if (typeof event === 'string' || event instanceof String) {
-                const eventObj = JSON.parse(JSON.parse(event));
-            }
-
             const eventObj = (typeof event === 'string' || event instanceof String) ? JSON.parse(event) : event;
             const { error, value } = schema.validate(eventObj);
+
+            Log.info(`event.validate eventID ${eventObj.header.eventID} correlationID ${eventObj.header.correlationID}`);
             
-            if (error !== undefined) {
-                Log.info(`event.validate.invalid ${error}`);
+            if (error !== undefined) {                
+                Log.info(`event.validate.invalid eventID ${eventObj.header.eventID} correlationID ${eventObj.header.correlationID} ${error}`);
                 return false;             
             } 
 
-            Log.info(`event.validate.valid`);
+            Log.info(`event.validate.valid eventID ${eventObj.header.eventID} correlationID ${eventObj.header.correlationID}`);
             return true;
 
         }
@@ -51,12 +42,13 @@ class Event {
     static buildEventObject(req, params) {
         let event = {};
         try {
-            
+
             event.header = {};
             event.header.eventID = uuidv4();
             event.header.correlationID = uuidv4();
             event.header.token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
             event.header.status = 'created';
+            event.header.timestamp = Date.now();
 
             // Check if event has additional params
             if (params !== undefined) {
@@ -64,10 +56,10 @@ class Event {
                 event.header.correlationID = (params.correlationID !== undefined) ? params.correlationID : event.header.correlationID;
                 event.header.type = (params.type !== undefined) ? params.type : '';
                 event.header.status = (params.status !== undefined) ? status : event.header.status;
+                event.header.timestamp = (params.timestamp !== undefined) ? params.timestamp : event.header.timestamp;
                 event.reqHeaders = (params.reqHeaders) ? req.headers : {};
             }
             event.header.redelivered = false;
-            event.header.timestamp = (params.timestamp !== undefined) ? params.timestamp : Date.now();
             event.data = req.body; 
 
             Log.info(`event.build.id ${event.header.eventID}`);

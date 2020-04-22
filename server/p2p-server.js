@@ -70,8 +70,7 @@ class P2pServer {
     }
 
     sendData(socket, data) {
-        // socket.send(JSON.stringify(data));
-        Log.info(`p2p.server.socket.message.send`);
+        Log.info(`p2p.server.socket.message.send ${socket._socket.remoteAddress} ${socket._socket.remotePort}`);
         socket.send(data);
         socket.on('error', (err) => {
             // TO DO - Better error handling 
@@ -102,6 +101,7 @@ class P2pServer {
                     Log.info(`p2p.server.sync.connect.channel.consume.queue.message ${message.content.toString()}`);
                     this.sockets.forEach(socket => {
                         // Check if socket is open
+                        Log.info(`p2p.server.sync.socket.message.send ${socket._socket.remoteAddress} ${socket._socket.remotePort} ready.state ${socket.readyState}`);
                         if (socket.readyState === Websocket.OPEN) {
                             this.sendData(socket, message.content.toString());
                         }

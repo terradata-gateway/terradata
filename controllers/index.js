@@ -44,7 +44,7 @@ exports.postTestEventMessages = async (req, res, next) => {
 
         Log.info(`app.server.post.test.event.messages.request ${req.method} ${req.originalUrl}`);
         
-        const messageNo = 100;
+        const messageNo = 10;
 
         const params = {
             type : 'standard',

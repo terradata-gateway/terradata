@@ -11,12 +11,20 @@ class EventManager {
     }
 
     storeEvent(data) {
+        
         Log.info(`event.manager.store ${this.eventsQueue}`);
+        /* Log.info(`event.manager.store.event.id ${JSON.parse(data).header.eventID}`);
+        Log.info(`event.manager.store.event.correlation.id ${JSON.parse(data).header.correlationID}`); */
+        
         this.pushToQueue(data, this.eventsQueue);
     }
 
     broadcastEvent(data) {
+        
         Log.info(`event.manager.broadcast ${this.broadcastQueue}`);
+        /* Log.info(`event.manager.broadcast.event.id ${data.header.eventID}`);
+        Log.info(`event.manager.broadcast.event.correlation.id ${data.header.correlationID}`);*/
+
         this.pushToQueue(data, this.broadcastQueue);
     }
 

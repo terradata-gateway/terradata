@@ -51,7 +51,7 @@ class Event {
     static buildEventObject(req, params) {
         let event = {};
         try {
-            Log.info(`event.build`);
+            
             event.header = {};
             event.header.eventID = uuidv4();
             event.header.correlationID = uuidv4();

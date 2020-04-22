@@ -38,7 +38,11 @@ class MessageBroker {
     }
 
     push (message, queue) {
+
         Log.info(`message.broker.push ${queue}`);
+        /* Log.info(`message.broker.push.event.id ${message.header.eventID}`);
+        Log.info(`message.broker.push.event.correlation.id ${message.header.correlationID}`); */
+        
         amqp.connect(this.host, (error0, connection) => {
             if (error0) {
                 Log.error(`p2p.message.broker.push.connect.error ${error0}`);

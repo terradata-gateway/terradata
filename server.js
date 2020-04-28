@@ -4,6 +4,8 @@ const Log = require('./lib/logger');
 const logger = require('morgan');
 const dotenv = require('dotenv');
 const app = express();
+
+// Load constants
 const ENVIRONMENT = require('./lib/constants/environment');
 
 // Load env vars
@@ -14,7 +16,7 @@ app.use(logger('dev'));
 app.use(express.json());
 
 // P2P Server
-const P2pServer = require('./server/p2p/p2p-server');
+const P2pServer = require('./server/p2p-server');
 const p2p = new P2pServer();
 
 /* ===================================================================================

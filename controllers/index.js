@@ -1,5 +1,5 @@
-const EventManager = require('../server/events/event-manager');
-const Event = require('../server/events/event');
+const EventManager = require('../server/event-manager');
+const Event = require('../server/event');
 const Log = require('../lib/logger');
 
 const em = new EventManager();
@@ -14,18 +14,15 @@ exports.postEventMessages = async (req, res, next) => {
 
         Log.info(`app.server.post.event.messages.request ${req.method} ${req.originalUrl}`);
 
-        const params = {
+        const event = Event.buildEventObject(req, {
             type : EVENTS.EVENT_TYPE.BROADCAST, // broadcast event
             reqHeaders: false // include original request headers
-        };
-
-        const event = Event.buildEventObject(req, params);
+        });
 
         em.distribute(event);
 
-        Log.info(`app.server.post.event.messages.response ${req.method} ${req.originalUrl} 200`);
-
         res.status(200).json({success: true});
+        Log.info(`app.server.post.event.messages.response ${req.method} ${req.originalUrl} 200`);
     } catch (err) {
         Log.error(`app.server.post.event.messages.response ${req.method} ${req.originalUrl} 400 ${err}`);
         res.status(400).json({
@@ -35,7 +32,6 @@ exports.postEventMessages = async (req, res, next) => {
     }
 }
 
-
 // @desc    Connect to Network Peers
 // @route   POST api/v1/peers
 // @access  Public
@@ -43,20 +39,16 @@ exports.postEventMessages = async (req, res, next) => {
 exports.postConnectToPeers = async (req, res, next) => {
     try {
         Log.info(`app.server.post.connect.to.peers.request ${req.method} ${req.originalUrl}`);
-        const params = {
-            type : EVENTS.EVENT_TYPE.SERVER, // server event
-            reqHeaders: false // include original request headers
-        };
 
-        const event = Event.buildEventObject(req, params);
+        const event = Event.buildEventObject(req, {
+            type : EVENTS.EVENT_TYPE.SERVER.CONNECT_TO_PEERS, // connect to peers server event
+            reqHeaders: false // include original request headers
+        });
 
         em.distribute(event);
 
+        res.status(200).json({success: true});
         Log.info(`app.server.post.connect.to.peers.response ${req.method} ${req.originalUrl} 200`);
-        res.status(200).json({
-            success: true,
-            // peers: p2p.getConnectedPeers()
-        });
     } catch (err) {
         Log.error(`app.server.post.connect.to.peers.response ${req.method} ${req.originalUrl} 400 ${err}`);
         res.status(400).json({
@@ -97,12 +89,12 @@ exports.postTestEventMessages = async (req, res, next) => {
         
         const messageNo = 10;
 
-        const params = {
+        const props = {
             type : 'standard',
             reqHeaders: false // include original request headers
         };
 
-        const eventObject = Event.buildEventObject(req, params);
+        const eventObject = Event.buildEventObject(req, props);
 
         for (let i=0; i<messageNo; i++) {
             em.storeEvent(eventObject);

@@ -1,10 +1,13 @@
+// Load modules
 const Websocket = require('ws');
-const EventManager = require('../events/event-manager');
-const Log = require('../../lib/logger');
+const EventManager = require('./event-manager');
+const Log = require('../lib/logger');
 const em = new EventManager();
 const amqp = require('amqplib/callback_api');
-const ENVIRONMENT = require('../../lib/constants/environment');
-const EVENTS = require('../../lib/constants/events');
+
+// Load constants
+const ENVIRONMENT = require('../lib/constants/environment');
+const EVENTS = require('../lib/constants/events');
 
 class P2pServer {
     constructor () {
@@ -42,15 +45,14 @@ class P2pServer {
         this.connectToPeers(this.peers);
 
         // Consume messages from the BROADCAST queue
-        this.consumeBroadcastQueueMessages();
-
-        // Log.info(`Listening for peer-to-peer connections on: ${port}`);
+        this.listenBroadcastQueue();
 
     }
 
     connectSocket(socket) {
         Log.info(`p2p.server.connect.socket ${socket._socket.remoteAddress} ${socket._socket.remotePort}`);
         this.sockets.push(socket);
+        Log.info(`p2p.server.connect.socket.open ${this.sockets.length}`);
         this.messageHandler(socket);
     }
 
@@ -67,7 +69,8 @@ class P2pServer {
     messageHandler(socket) {
         socket.on('message', message => {
             Log.info(`p2p.server.socket.message.handler ${message}`);
-            em.saveEventToQueue(message);
+            console.log(JSON.parse(message));
+            em.saveData(message);
         });
     }
 
@@ -81,6 +84,7 @@ class P2pServer {
     }
 
     broadcastDataToPeers(data) {
+        Log.info(`p2p.server.sync.socket.message.broadcast.peers`);
         try {
             this.sockets.forEach(socket => {
                 // Check if socket is open
@@ -92,19 +96,18 @@ class P2pServer {
         } catch (err) {
             Log.error(`p2p.server.sync.socket.message.broadcast.peers.error ${err}`);
         }
-
     }
 
     // Listen to messages from the BROADCAST queue
-    consumeBroadcastQueueMessages() {
+    listenBroadcastQueue() {
         amqp.connect(this.mqHost, (error0, connection) => {
             if (error0) {
-                Log.info(`p2p.server.consume.broadcast.messages.connect.error ${error0}`);
+                Log.info(`p2p.server.get.broadcast.data.connect.error ${error0}`);
                 throw error0;
             }
             connection.createChannel((error1, channel) => {
                 if (error1) {
-                    Log.info(`p2p.server.consume.broadcast.messages.connect.channel.error ${error1}`);
+                    Log.info(`p2p.server.get.broadcast.data.connect.channel.error ${error1}`);
                     throw error1;
                 } 
 
@@ -112,11 +115,11 @@ class P2pServer {
                     durable: false
                 });
 
-                Log.info(`p2p.server.consume.broadcast.messages.connect.channel.listen.queue ${this.broadcastQueue}`);
+                Log.info(`p2p.server.get.broadcast.data.connect.channel.listen.queue ${this.broadcastQueue}`);
 
                 channel.consume(this.broadcastQueue, (message) => {
-                    Log.info(`p2p.server.consume.broadcast.messages.listen.queue ${this.broadcastQueue}`);
-                    Log.info(`p2p.server.consume.broadcast.messages.listen.queue.message ${message.content.toString()}`);
+                    Log.info(`p2p.server.get.broadcast.data.listen.queue ${this.broadcastQueue}`);
+                    Log.info(`p2p.server.get.broadcast.data.listen.queue.message ${message.content.toString()}`);
                     this.synchronize(JSON.parse(message.content.toString()));
 
                 }, {
@@ -129,15 +132,21 @@ class P2pServer {
     synchronize(event) {
         Log.info(`p2p.server.synchronize.event`);
         try {
-            if (event.header.type == EVENTS.EVENT_TYPE.SERVER) {
-                Log.info(`p2p.server.synchronize.event.type ${EVENTS.EVENT_TYPE.SERVER}`);
-                this.connectToPeers(event.data.peers)
+
+            switch(event.header.type) {
+                case EVENTS.EVENT_TYPE.SERVER.CONNECT_TO_PEERS: 
+                    Log.info(`p2p.server.synchronize.event.type ${EVENTS.EVENT_TYPE.SERVER.CONNECT_TO_PEERS}`);
+                    this.connectToPeers(event.data.peers);
+                    break;
+                case EVENTS.EVENT_TYPE.BROADCAST:
+                    Log.info(`p2p.server.synchronize.event.type ${EVENTS.EVENT_TYPE.BROADCAST}`);
+                    this.broadcastDataToPeers(JSON.stringify(event));
+                    break;
+                case EVENTS.EVENT_TYPE.UNHANDLED: 
+                    Log.info(`p2p.server.synchronize.event.type.unhandled ${EVENTS.EVENT_TYPE.UNHANDLED}`);
+                    break;
             }
 
-            if (event.header.type == EVENTS.EVENT_TYPE.BROADCAST) {
-                Log.info(`p2p.server.synchronize.event.type ${EVENTS.EVENT_TYPE.BROADCAST}`);
-                this.broadcastDataToPeers(JSON.stringify(event));
-            }
         } catch (err) {
             Log.error(`p2p.server.synchronize.event.error ${err} ${JSON.stringify(event)}`);
         }

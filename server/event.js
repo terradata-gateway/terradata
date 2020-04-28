@@ -1,6 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const Joi = require('@hapi/joi');
-const Log = require('../../lib/logger');
+const Log = require('../lib/logger');
 
 class Event {
     static validateEventObject(event) {
@@ -41,7 +41,7 @@ class Event {
         } 
     }
 
-    static buildEventObject(req, params) {
+    static buildEventObject(req, props) {
         let event = {};
         try {
 
@@ -52,14 +52,14 @@ class Event {
             event.header.status = 'created';
             event.header.timestamp = Date.now();
 
-            // Check if event has additional params
-            if (params !== undefined) {
-                event.header.eventID = (params.eventID !== undefined) ? params.eventID : event.header.eventID;
-                event.header.correlationID = (params.correlationID !== undefined) ? params.correlationID : event.header.correlationID;
-                event.header.type = (params.type !== undefined) ? params.type : '';
-                event.header.status = (params.status !== undefined) ? status : event.header.status;
-                event.header.timestamp = (params.timestamp !== undefined) ? params.timestamp : event.header.timestamp;
-                event.reqHeaders = (params.reqHeaders) ? req.headers : {};
+            // Check if event has additional props
+            if (props !== undefined) {
+                event.header.eventID = (props.eventID !== undefined) ? props.eventID : event.header.eventID;
+                event.header.correlationID = (props.correlationID !== undefined) ? props.correlationID : event.header.correlationID;
+                event.header.type = (props.type !== undefined) ? props.type : '';
+                event.header.status = (props.status !== undefined) ? status : event.header.status;
+                event.header.timestamp = (props.timestamp !== undefined) ? props.timestamp : event.header.timestamp;
+                event.reqHeaders = (props.reqHeaders) ? req.headers : {};
             }
             event.header.redelivered = false;
             event.data = req.body; 

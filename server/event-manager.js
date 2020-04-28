@@ -1,9 +1,11 @@
-const Log = require('../../lib/logger');
+// Load modules
+const Log = require('../lib/logger');
 const Event = require('./event');
-const MessageBroker = require('../../lib/message-broker');
+const MessageBroker = require('../lib/message-broker');
 
-const ENVIRONMENT = require('../../lib/constants/environment');
-const EVENTS = require('../../lib/constants/events');
+// Load constants
+const ENVIRONMENT = require('../lib/constants/environment');
+const EVENTS = require('../lib/constants/events');
 const mb = new MessageBroker(ENVIRONMENT.MQ_HOST);
 
 
@@ -12,32 +14,32 @@ class EventManager {
         this.eventsQueue = ENVIRONMENT.EVENTS_QUEUE;
         this.broadcastQueue = ENVIRONMENT.BROADCAST_QUEUE;
     }
+
     
-    distribute(data) {
-        // Broadcast events are stored and broadcasted to all peers 
-        if (data.header.type == EVENTS.EVENT_TYPE.BROADCAST) {
-            this.saveEventToQueue(data);
-            this.broadcastEventToQueue(data);
+    distribute(event) {
+        // Broadcast events are saved locally and sent to all peers 
+        if (event.header.type == EVENTS.EVENT_TYPE.BROADCAST) {
+            this.saveData(event);
+            this.saveBroadcastData(event);
         }
 
-        // Server events
-        if (data.header.type == EVENTS.EVENT_TYPE.SERVER) {
-            this.broadcastEventToQueue(data);
+        // Server - Connect to Peers
+        if (event.header.type == EVENTS.EVENT_TYPE.SERVER.CONNECT_TO_PEERS) {
+            this.saveBroadcastData(event);
         }
     }
 
-
-    saveEventToQueue(event) {
+    saveData(data) {
         Log.info(`event.manager.save.queue ${this.eventsQueue}`);
         
-        this.pushToQueue(event, this.eventsQueue);
+        this.pushToQueue(data, this.eventsQueue);
     }
 
-    broadcastEventToQueue(event) {
+    saveBroadcastData(data) {
         
         Log.info(`event.manager.broadcast.queue ${this.broadcastQueue}`);
 
-        this.pushToQueue(event, this.broadcastQueue);
+        this.pushToQueue(data, this.broadcastQueue);
     }
 
     pushToQueue(data, queue) {

@@ -2,6 +2,8 @@
 npm run dev
 
 # Start New Event Managers
+set P2P_PORT=5002&&set HTTP_PORT=3002&&set PEERS=ws://localhost:5001&&set EVENTS_QUEUE=TD.EVENTSTORE&&set BROADCAST_QUEUE=TD.BROADCAST&&set SERVER_NAME=SERVER.2&& npm run dev
+
 set P2P_PORT=5002&&set HTTP_PORT=3002&&set PEERS=ws://localhost:5001&&set EVENTS_QUEUE=TD.EVENTSTORE&&set BROADCAST_QUEUE=TD.BROADCAST&&set SERVER_NAME=SERVER.2&& set MQ_HOST=amqp://localhost:5673&& npm run dev
 set P2P_PORT=5003&&set HTTP_PORT=3003&&set PEERS=ws://localhost:5001,ws://localhost:5002&&set EVENTS_QUEUE=TD.EVENTSTORE&&set BROADCAST_QUEUE=TD.BROADCAST&&set SERVER_NAME=SERVER.3&& npm run dev
 set P2P_PORT=5004&&set HTTP_PORT=3004&&set PEERS=ws://localhost:5001,ws://localhost:5002,ws://localhost:5003&&set EVENTS_QUEUE=TD.EVENTSTORE&&set BROADCAST_QUEUE=TD.BROADCAST&&set SERVER_NAME=SERVER.4&& npm run dev

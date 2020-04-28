@@ -1,5 +1,5 @@
 const amqp = require('amqplib/callback_api');
-const Log = require('../lib/logger');
+const Log = require('../../lib/logger');
 
 class MessageBroker {
 

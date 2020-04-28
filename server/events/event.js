@@ -1,6 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const Joi = require('@hapi/joi');
-const Log = require('../lib/logger');
+const Log = require('../../lib/logger');
 
 class Event {
     static validateEventObject(event) {
@@ -18,6 +18,8 @@ class Event {
                 reqHeaders: Joi.object(),
                 data : Joi.object().required()
             });
+
+            console.log(event.toString());
 
             const eventObj = (typeof event === 'string' || event instanceof String) ? JSON.parse(event) : event;
             const { error, value } = schema.validate(eventObj);

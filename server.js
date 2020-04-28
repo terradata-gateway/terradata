@@ -3,8 +3,8 @@ const express = require('express');
 const Log = require('./lib/logger');
 const logger = require('morgan');
 const dotenv = require('dotenv');
-const constants = require('./lib/constants');
 const app = express();
+const ENVIRONMENT = require('./lib/constants/environment');
 
 // Load env vars
 dotenv.config({ path: './config/config.env'});
@@ -14,7 +14,7 @@ app.use(logger('dev'));
 app.use(express.json());
 
 // P2P Server
-const P2pServer = require('./server/p2p-server');
+const P2pServer = require('./server/p2p/p2p-server');
 const p2p = new P2pServer();
 
 /* ===================================================================================
@@ -31,14 +31,14 @@ app.use('/api/v1', routes);
     Terradata P2P Event Manager
 =====================================================================================*/
 
-p2p.listen(constants.P2P_PORT);
+p2p.listen(ENVIRONMENT.P2P_PORT);
 
 /* ===================================================================================
    Express API
 =====================================================================================*/
 
-const server = app.listen(constants.HTTP_PORT, () => {
-    Log.info(`app.server.listen.port ${constants.HTTP_PORT}`);
+const server = app.listen(ENVIRONMENT.HTTP_PORT, () => {
+    Log.info(`app.server.listen.port ${ENVIRONMENT.HTTP_PORT}`);
 });
 
 // Handle unhandled rejections

@@ -2,7 +2,8 @@ const express = require('express');
 
 const {
     postEventMessages,
-    getPeers,
+    postConnectToPeers,
+    getConnectedPeers,
     postTestEventMessages
 } = require('../controllers');
 
@@ -11,10 +12,11 @@ const router = express.Router();
 router.route('/events')
             .post(postEventMessages);
 
+router.route('/peers')
+            .post(postConnectToPeers)
+            .get(getConnectedPeers);
+
 router.route('/test')
             .post(postTestEventMessages);
-
-router.route('/peers')
-            .get(getPeers);
 
 module.exports = router;

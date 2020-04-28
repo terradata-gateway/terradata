@@ -1,6 +1,6 @@
 const Log = require('../../lib/logger');
 const Event = require('./event');
-const MessageBroker = require('../messaging/message-broker');
+const MessageBroker = require('../../lib/message-broker');
 
 const ENVIRONMENT = require('../../lib/constants/environment');
 const EVENTS = require('../../lib/constants/events');

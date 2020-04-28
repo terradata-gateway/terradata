@@ -14,7 +14,7 @@ class EventManager {
     }
     
     distribute(data) {
-        // Broadcast events are stored and broadcast to all peers 
+        // Broadcast events are stored and broadcasted to all peers 
         if (data.header.type == EVENTS.EVENT_TYPE.BROADCAST) {
             this.saveEventToQueue(data);
             this.broadcastEventToQueue(data);
@@ -27,17 +27,17 @@ class EventManager {
     }
 
 
-    saveEventToQueue(data) {
+    saveEventToQueue(event) {
         Log.info(`event.manager.save.queue ${this.eventsQueue}`);
         
-        this.pushToQueue(data, this.eventsQueue);
+        this.pushToQueue(event, this.eventsQueue);
     }
 
-    broadcastEventToQueue(data) {
+    broadcastEventToQueue(event) {
         
         Log.info(`event.manager.broadcast.queue ${this.broadcastQueue}`);
 
-        this.pushToQueue(data, this.broadcastQueue);
+        this.pushToQueue(event, this.broadcastQueue);
     }
 
     pushToQueue(data, queue) {

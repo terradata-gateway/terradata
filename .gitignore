@@ -4,3 +4,4 @@ tests/
 commands/
 logs/error.log
 logs/server.log
+samples/

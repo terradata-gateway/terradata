@@ -9,7 +9,7 @@ const app = express();
 const ENVIRONMENT = require('./lib/constants/environment');
 
 // Load env vars
-dotenv.config({ path: './config/config.env'});
+dotenv.config({ path: './config/config.env' });
 app.use(logger('dev'));
 
 // Body Parser
@@ -23,7 +23,7 @@ const p2p = new P2pServer();
     Terradata Gateway API 
 =====================================================================================*/
 
-// Route files 
+// Route files
 const routes = require('./routes');
 
 // Mount routers
@@ -40,13 +40,12 @@ p2p.listen(ENVIRONMENT.P2P_PORT);
 =====================================================================================*/
 
 const server = app.listen(ENVIRONMENT.HTTP_PORT, () => {
-    Log.info(`app.server.listen.port ${ENVIRONMENT.HTTP_PORT}`);
+	Log.info(`app.server.listen.port ${ENVIRONMENT.HTTP_PORT}`);
 });
 
 // Handle unhandled rejections
 process.on('unhandledRejection', (err, promise) => {
-    Log.error(`process.unhandled.rejection ${err.message}`);
-    // Close server and exit process
-    server.close(() => process.exit(1));
+	Log.error(`process.unhandled.rejection ${err.message}`);
+	// Close server and exit process
+	server.close(() => process.exit(1));
 });
-

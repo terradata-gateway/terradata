@@ -18,7 +18,7 @@
     "morgan": "^1.10.0",
     "uuid": "^7.0.3",
     "winston": "^3.2.1",
-    "ws": "^7.2.3"
+    "ws": "^7.4.6"
   },
   "devDependencies": {
     "nodemon": "^2.0.3"
